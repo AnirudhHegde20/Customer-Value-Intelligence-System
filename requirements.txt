@@ -7,3 +7,5 @@ plotly
 lifetimes
 streamlit
 altair
+openpyxl
+pathlib
