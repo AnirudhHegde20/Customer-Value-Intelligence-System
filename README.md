@@ -412,3 +412,19 @@ streamlit run dashboard/app.py
 
 ---
 
+## For Recruiters / Hiring Managers
+
+If you are skimming this project, here is what it demonstrates:
+
+- **End-to-end analytics pipeline**  
+  Raw transactional data → cleaned customer table → engineered features → CLV model → clustering → dashboard.
+
+- **Customer analytics & CLV modelling**  
+  RFM, BG/NBD, Gamma-Gamma, and segment-level business recommendations.
+
+- **Strong engineering practices**  
+  Modular `src/` structure, reusable functions, pipeline script, and a clear project layout that can be extended with tests and orchestration.
+
+- **Business thinking, not just code**  
+  Segment playbooks, KPIs, and concrete ideas for how marketing / CRM teams could use these insights in real campaigns.
+
