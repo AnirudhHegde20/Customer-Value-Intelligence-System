@@ -244,7 +244,153 @@ CUSTOMER-VALUE-INTELLIGENCE/
 
 ---
 
-## ⚙️ 8. How to Run
+---
+
+## 8. Segment Playbooks (How a Marketing Team Would Use This)
+
+To make the output usable for non-technical teams, each cluster can be mapped to a simple, business-friendly segment.
+
+Below is an example mapping based on typical RFM + CLV patterns:
+
+### 1. VIP Loyalists
+
+**Who they are**
+
+- Very recent purchases (low Recency)
+- High Frequency and high Monetary value
+- Highest CLV_6m among all segments
+
+**Signals**
+
+- `Recency` in the lowest 20–30%  
+- `Frequency` and `Monetary` in the top 20%  
+- Above-average `CLV_6m`  
+
+**What to do**
+
+- Early access to new launches
+- Priority support and concierge-style service
+- Exclusive loyalty rewards and birthday offers
+
+**What to measure**
+
+- Retention rate (90-day / 180-day)
+- CLV uplift vs baseline
+- NPS / satisfaction
+
+---
+
+### 2. High-Potential Newcomers
+
+**Who they are**
+
+- Recently acquired customers
+- 1–2 purchases so far, but strong early signals
+- Growing CLV, even if historical spend is moderate
+
+**Signals**
+
+- Medium `Recency` (recent first purchase)
+- Low to medium `Frequency`, but positive `CLV_6m`
+- High predicted purchase probability from BG/NBD
+
+**What to do**
+
+- Welcome journeys and onboarding emails
+- “Complete the look” or “People also bought” recommendations
+- Small, targeted incentives for 2nd and 3rd purchase
+
+**What to measure**
+
+- 2nd purchase conversion rate
+- Time between 1st and 2nd order
+- CLV growth over 3–6 months
+
+---
+
+### 3. Discount-Driven Shoppers
+
+**Who they are**
+
+- Purchase mostly during promotions or clearances
+- Lower Monetary value but responsive to discounts
+- Higher sensitivity to pricing and offers
+
+**Signals**
+
+- Low to medium `Monetary`
+- Spike in orders around promo periods (can be tagged via campaign metadata)
+- CLV_6m is positive but heavily offer-driven
+
+**What to do**
+
+- Campaigns tied to sales, seasonal promos, flash deals
+- Volume-driven offers (BOGO, bundles)
+- Limited personalization, high automation
+
+**What to measure**
+
+- Margin after discount
+- Offer redemption rates
+- Incremental orders during promo periods
+
+---
+
+### 4. At-Risk Loyalists
+
+**Who they are**
+
+- Historically strong customers who have gone quiet
+- High past Monetary and Frequency, but Recency has increased
+- CLV_6m starting to decline
+
+**Signals**
+
+- Historically high `Monetary`, `Frequency`
+- Recency drifting into higher range (haven’t purchased in a while)
+- CLV_6m lower than VIPs, but still meaningful
+
+**What to do**
+
+- Win-back campaigns: “We miss you” + personalized recommendations
+- Small loyalty incentives to re-activate (credit, free shipping)
+- Reminders for replenishable items (if applicable)
+
+**What to measure**
+
+- Re-activation rate
+- Time to next purchase after win-back
+- CLV change post reactivation
+
+---
+
+### 5. Dormant / One-and-Done Customers
+
+**Who they are**
+
+- Bought once and never came back
+- Make up the bulk of the customer base
+- Very low CLV
+
+**Signals**
+
+- `Frequency = 1`
+- High `Recency` (no recent purchases)
+- Low `CLV_6m`
+
+**What to do**
+
+- Light-touch reactivation (email, push) rather than heavy spend
+- Generic awareness campaigns
+- Use as a control group for testing segment-based strategies
+
+**What to measure**
+
+- Cost per reactivated customer
+- Overall list health and engagement
+
+
+## ⚙️ 9. How to Run
 
 ### Install dependencies
 
