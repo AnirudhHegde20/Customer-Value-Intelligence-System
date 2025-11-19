@@ -26,6 +26,7 @@ def clean_transactions(df: pd.DataFrame) -> pd.DataFrame:
     - drop rows without CustomerID
     - drop negative quantities/prices
     - parse dates
+    - normalize Country values
     - compute TotalPrice
     - remove duplicates
     """
@@ -41,6 +42,19 @@ def clean_transactions(df: pd.DataFrame) -> pd.DataFrame:
     df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
     df["CustomerID"] = df["CustomerID"].astype(str)
 
+    # --- Country cleaning ---
+    # strip whitespace, unify case
+    df["Country"] = df["Country"].astype(str).str.strip()
+
+    # values that mean "no real country"
+    bad_countries = ["", "nan", "NaN", "NONE", "None", "Unspecified", "UNSPECIFIED"]
+
+    df["Country"] = df["Country"].replace(bad_countries, pd.NA)
+
+    # if you want to completely drop rows with no country, uncomment:
+    # df = df.dropna(subset=["Country"])
+
+    # remove duplicates
     df = df.drop_duplicates()
 
     # revenue per line

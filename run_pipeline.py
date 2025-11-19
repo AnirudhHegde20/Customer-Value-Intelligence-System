@@ -37,18 +37,35 @@ def main():
         how="left"
     )
 
-    # 4. Clustering
+        # 4. Clustering
     print("Running clustering...")
 
+    # features we'll cluster on
     cluster_cols = ["Recency", "Frequency", "Monetary", "IsUK"]
     cat_cols = [c for c in features.columns if c.startswith("CatShare_")]
     feature_cols = cluster_cols + cat_cols
 
+    # 4a. Handle missing values in clustering features
+    # Drop rows where core RFM is missing (should be rare)
+    features = features.dropna(subset=["Recency", "Frequency", "Monetary"])
+
+    # For IsUK and category share features, fill NaN with 0
+    if "IsUK" in features.columns:
+        features["IsUK"] = features["IsUK"].fillna(0)
+
+    for c in cat_cols:
+        features[c] = features[c].fillna(0)
+
+    # Optional: quick sanity check (you can comment out later)
+    # print("NaNs per feature after cleaning:\n", features[feature_cols].isna().sum())
+
+    # 4b. Scale and run KMeans evaluation
     X, scaler = scale_features(features, feature_cols)
 
     eval_df = evaluate_kmeans(X, range(2, 9))
     print("KMeans evaluation (k, silhouette, inertia):")
     print(eval_df)
+
 
     # pick k = 4 for now
     kmeans = fit_kmeans(X, k=4)
