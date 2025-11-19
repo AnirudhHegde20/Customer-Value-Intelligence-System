@@ -204,30 +204,30 @@ The dashboard is intended as a **mock internal tool** that marketing, CRM, or gr
 ```text
 CUSTOMER-SEGMENTATION-USING-RFM-ANALYSIS/
 ├── src/
-│   ├── data_prep.py          # load & clean raw transactions
-│   ├── rfm_features.py       # RFM + product mix + geography
-│   ├── clustering_models.py  # KMeans, Hierarchical, GMM
-│   └── clv.py                # CLV modelling with lifetimes
+│   ├── data_prep.py          
+│   ├── rfm_features.py       
+│   ├── clustering_models.py  
+│   └── clv.py                
 │
 ├── dashboard/
-│   └── app.py                # Streamlit dashboard
+│   └── app.py                
 │
 ├── notebooks/
-│   └── CustomerSegmentationAnalysis.ipynb  # optional EDA/experiments
+│   └── CustomerSegmentationAnalysis.ipynb  
 │
 ├── data/
 │   ├── raw/
-│   │   └── ecommerce_data.csv             # input dataset (not committed)
+│   │   └── ecommerce_data.csv             
 │   └── processed/
-│       └── rfm_segments.csv               # output customer table
+│       └── rfm_segments.csv               
 │
 ├── reports/
-│   └── figures/                           # saved plots (optional)
+│   └── figures/                           
 │
 ├── assets/
-│   └── banner.png                         # optional image for README
+│   └── banner.png                         
 │
-├── run_pipeline.py                        # end-to-end pipeline script
+├── run_pipeline.py                        
 ├── requirements.txt
 ├── .gitignore
 └── README.md
