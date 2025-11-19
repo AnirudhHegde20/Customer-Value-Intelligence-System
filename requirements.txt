@@ -4,6 +4,6 @@ matplotlib
 seaborn
 scikit-learn
 plotly
-lifetimes           
+lifetimes
 streamlit
-apache-airflow      
+altair

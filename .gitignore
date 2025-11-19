@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual env
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/raw/*
+!data/raw/.gitkeep
+
+data/processed/*
+!data/processed/.gitkeep
+
+# OS files
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Streamlit
+.streamlit/
+
+# Airflow
+airflow/logs/
+airflow/*.db
