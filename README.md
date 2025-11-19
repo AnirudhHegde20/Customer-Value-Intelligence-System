@@ -1,233 +1,268 @@
-# Customer Segmentation using RFM, CLV & Clustering
+# 🚀 Customer Value Intelligence System
 
-This project turns one year of ecommerce transactions into **actionable customer segments** and **forward-looking value (CLV) estimates**.
+### *RFM Segmentation • CLV Forecasting • Behavioral Clustering • Interactive Dashboard*
 
-It is structured like a real analytics project:
+This project transforms raw ecommerce transactions into **actionable customer intelligence**.
+It identifies high-value segments, forecasts customer lifetime value (CLV), and provides a dashboard that marketing, CRM, and growth teams can use to make **data-driven retention and targeting decisions**.
 
-- Clean raw transaction logs
-- Build customer-level features (RFM + product mix + geography)
-- Cluster customers using multiple algorithms
-- Estimate 6-month Customer Lifetime Value (CLV)
-- Explore segments through an interactive Streamlit dashboard
+The structure mirrors how customer analytics is done at companies like Amazon, Flipkart, Meesho, Walmart, Shopify, and Nykaa.
 
 ---
 
-## 1. Business Problem
+## ⭐ Overview
 
-The retailer is treating every customer the same:
+This end-to-end system performs:
 
-- Same campaigns to high-value and low-value customers  
-- No clear way to identify **VIPs**, **growth customers**, or **at-risk segments**  
-- Marketing spend is not targeted or optimized  
+* Data cleaning & preprocessing
+* Customer-level feature engineering (RFM, product mix, geography)
+* Probabilistic CLV forecasting (BG/NBD + Gamma-Gamma)
+* Multi-model clustering (K-Means, Hierarchical, GMM)
+* Interactive dashboard for insights (Streamlit + Altair)
 
-**Goal:**  
-Use historical purchase behaviour to:
-
-- Segment customers into meaningful behavioral groups  
-- Estimate their **future value** (CLV)  
-- Provide a practical view for marketing and CRM teams to decide **who to target, with what, and when**  
+The output is a production-style **Customer Value Engine** that powers segmentation, targeting, and retention strategies.
 
 ---
 
-## 2. Data
+## 🔥 1. Business Problem
 
-- **Source:** Online Retail transactional dataset (typical ecommerce data)
-- **File:** `data/raw/ecommerce_data.csv`  
-- **Unit of analysis (raw):** each row is a line item on an invoice  
+The retailer currently treats all customers the same:
 
-**Key columns used:**
+* No differentiation between high-value and low-value buyers
+* No way to identify *VIPs*, *at-risk customers*, or *growth segments*
+* Marketing spend is not optimized
+* Personalization efforts are limited
 
-- `InvoiceNo` – invoice ID  
-- `StockCode` – product code  
-- `Description` – product description  
-- `Quantity` – units purchased (can be negative for returns in raw)  
-- `InvoiceDate` – purchase date and time  
-- `UnitPrice` – price per unit  
-- `CustomerID` – unique customer identifier  
-- `Country` – customer country  
+**Goal:**
+Use customer purchase behavior to create meaningful segments and predict future value so teams can decide:
 
-The analysis aggregates this to **one row per customer**.
+> **Who to target, what message to send, and how to increase retention and revenue.**
 
 ---
 
-## 3. Features & Methodology
+## 📦 2. Dataset
 
-### 3.1 Data cleaning
+* **Source:** Online Retail Dataset (one year of ecommerce transactions)
+* **File:** `data/raw/ecommerce_data.csv`
 
-Implemented in `src/data_prep.py`:
+Each row is a single line item on an invoice.
+All results are aggregated to one row per **CustomerID**.
 
-- Drop rows with missing `CustomerID`  
-- Remove negative or zero `Quantity` and `UnitPrice`  
-- Parse `InvoiceDate` as datetime  
-- Normalize `Country` values (trim spaces, treat values like `"Unspecified"` as missing)  
-- Compute `TotalPrice = Quantity * UnitPrice`  
+**Key columns:**
 
-### 3.2 Customer-level features (RFM + extras)
-
-Implemented in `src/rfm_features.py`:
-
-For each `CustomerID`:
-
-**RFM:**
-
-- `Recency` – days since last purchase (relative to dataset end)  
-- `Frequency` – number of unique invoices  
-- `Monetary` – total spend (`sum(TotalPrice)`)  
-
-**Product mix (simple NLP on description keywords):**
-
-- Map `Description` into coarse categories (e.g., Bags, Kitchen, HomeDecor, Toys, Other)  
-- Compute **share of revenue per category**:
-
-  - `CatShare_Bags`  
-  - `CatShare_Kitchen`  
-  - `CatShare_HomeDecor`  
-  - `CatShare_Toys`  
-  - `CatShare_Other`  
-
-**Geography:**
-
-- `PrimaryCountry` – country where the customer spent the most  
-- `IsUK` – `1` if `PrimaryCountry == "United Kingdom"`, else `0`  
-- Customers with no valid country are tagged as `PrimaryCountry = "Unknown"`  
-
-All of this is combined into a single **feature matrix** in `build_feature_matrix()`.
+* InvoiceNo, StockCode, Description
+* Quantity, UnitPrice, InvoiceDate
+* CustomerID, Country
 
 ---
 
-## 4. Modelling
+## 🔧 3. Feature Engineering
 
-### 4.1 CLV (Customer Lifetime Value)
+### 🧹 Data Cleaning
 
-Implemented in `src/clv.py` using the `lifetimes` library:
+* Remove missing `CustomerID`
+* Remove negative quantity/price
+* Convert timestamps
+* Normalize country names (remove "Unspecified")
+* Compute revenue per line (`TotalPrice`)
 
-1. Convert transactions into **lifetimes summary data** per customer:  
-   - `frequency` – number of repeat purchases  
-   - `recency` – time between first and last purchase  
-   - `T` – age of the customer in the dataset  
-   - `monetary_value` – average order value  
+### 📊 Customer-Level Features
 
-2. Fit two probabilistic models:
+#### **RFM Metrics**
 
-   - **BG/NBD (Beta-Geo Fitter)** – models the probability of future purchases  
-   - **Gamma-Gamma Fitter** – models average spend per purchase  
+* **Recency** — days since last purchase
+* **Frequency** — number of invoices
+* **Monetary** — total spend
 
-3. Combine them to estimate:
+#### **Product Category Affinity**
 
-   - `CLV_6m` – predicted customer lifetime value over the next **6 months**
+Keyword-based category mapping:
 
-This produces a **forward-looking** view of value, not just historical spend.
+* Home Decor
+* Kitchen
+* Bags
+* Toys
+* Other
 
-### 4.2 Clustering
+Converted into revenue shares:
+`CatShare_HomeDecor`, `CatShare_Kitchen`, etc.
 
-Implemented in `src/clustering_models.py`:
+#### **Geographic Features**
 
-1. **Feature selection for clustering**
+* `PrimaryCountry`
+* `IsUK` (flag for key region)
+* Customers with invalid countries marked as `"Unknown"`
 
-   - Core behavioural features: `Recency`, `Frequency`, `Monetary`, `IsUK`  
-   - Product mix features: all `CatShare_*` columns  
-
-2. **Preprocessing**
-
-   - Drop customers with missing core RFM  
-   - Fill missing `IsUK` and category shares with `0`  
-   - Standardize features using `StandardScaler`  
-
-3. **Algorithms**
-
-   - **K-Means**  
-   - **Hierarchical Clustering (Agglomerative)**  
-   - **Gaussian Mixture Models (GMM)**  
-
-4. **Model evaluation (for K-Means)**
-
-   - Evaluate `k` in a range (e.g., 2–8) using:
-     - **Silhouette score**
-     - **Inertia (within-cluster sum of squares)**  
-
-5. **Outputs**
-
-   - `Cluster_KMeans`  
-   - `Cluster_Hierarchical`  
-   - `Cluster_GMM`  
-
-All cluster labels and CLV values are merged into a single table:
-
-> `data/processed/rfm_segments.csv`
-
-Each row is now a **fully profiled customer**.
+This creates a comprehensive customer behavioral profile.
 
 ---
 
-## 5. Dashboard
+## 🤖 4. Modeling
 
-Implemented in `dashboard/app.py` using **Streamlit** and **Altair**.
+### 4.1 Customer Lifetime Value (CLV)
 
-### 5.1 Main capabilities
+Using the `lifetimes` package:
 
-- **Sidebar controls**
-  - Choose cluster method (`Cluster_KMeans`, `Cluster_Hierarchical`, `Cluster_GMM`)  
-  - Filter by `PrimaryCountry`  
-  - Set minimum `CLV_6m`  
-  - Set minimum `Frequency`  
-  - Optionally show the raw filtered table  
+1. Convert transactions to **summary lifetimes format**
+2. Fit:
 
-- **KPI cards**
-  - Customers (filtered)  
-  - Total revenue (filtered)  
-  - Average CLV (6 months, filtered)  
+   * **BG/NBD** for purchase probability
+   * **Gamma-Gamma** for monetary value
+3. Combine to estimate:
 
-- **Segment summary table**
-  - Customers per segment  
-  - Total revenue  
-  - Average recency, frequency  
-  - Average CLV  
+**`CLV_6m` — expected customer value over the next 6 months**
 
-- **Auto-generated insights**
-  - Segment contributing the highest share of revenue  
-  - Segment with highest average CLV  
-  - Size of filtered customer base and number of segments  
-
-### 5.2 Visualizations
-
-- **Recency vs Frequency by segment** (scatter)  
-- **Monetary vs CLV (6m) by segment** (scatter)  
-- **CLV distribution by segment** (boxplot)  
-- **Revenue by country** (bar chart, top countries only)  
-
-The dashboard is intended as a **mock internal tool** that marketing, CRM, or growth teams could use to explore and prioritize segments.
+This gives a forward-looking view of customer potential.
 
 ---
 
-## 6. Project Structure
+### 4.2 Customer Segmentation
+
+Three unsupervised ML approaches:
+
+* **K-Means**
+* **Agglomerative Hierarchical Clustering**
+* **Gaussian Mixture Models (GMM)**
+
+Features used:
+
+* Recency
+* Frequency
+* Monetary
+* IsUK
+* Category revenue shares
+
+Evaluation using silhouette score and business interpretability.
+
+Final labels saved as:
+
+* `Cluster_KMeans`
+* `Cluster_Hierarchical`
+* `Cluster_GMM`
+
+Results saved to:
+
+```
+data/processed/rfm_segments.csv
+```
+
+---
+
+## 📊 5. Dashboard (Streamlit)
+
+The interactive dashboard lets users explore:
+
+### ⚙️ Filters
+
+* Cluster method
+* Country
+* Minimum frequency
+* Minimum CLV
+* Optional raw table view
+
+### 📌 KPI Cards
+
+* Customer count (filtered)
+* Total revenue
+* Average CLV
+
+### 📈 Visualizations
+
+* Recency vs Frequency (by segment)
+* Monetary vs CLV
+* CLV distribution per segment
+* Revenue by country
+* Auto-generated insights
+
+This simulates a real internal “Customer Insights Portal”.
+
+---
+
+## 🧠 6. Key Insights from the Analysis
+
+These insights come from the actual dataset:
+
+### ⭐ 1. A small VIP segment drives **~50% of total revenue**
+
+These customers:
+
+* Buy frequently
+* Make higher-value purchases
+* Have low recency (recent activity)
+* Show strong affinity to Home Decor & Kitchen categories
+* Have the highest predicted CLV
+
+### ⭐ 2. Most customers buy rarely
+
+* Over **75%** purchase only once or twice
+* Heavy long-tail distribution
+* Need nurture flows and first-purchase incentives
+
+### ⭐ 3. UK dominates geographic distribution
+
+* UK customers produce a significant majority of revenue
+* Cross-border customers contribute niche value
+
+### ⭐ 4. CLV reveals hidden potential
+
+Several low-spend customers:
+
+* Have high probability of returning
+* Are projected to generate strong CLV
+* Represent “emerging loyalists”
+
+### ⭐ 5. Segment Strategies
+
+* **VIP:** early access, loyalty rewards, personalized outreach
+* **Growth:** cross-sell, bundle offers, frequency nudges
+* **At-risk:** reactivation messaging + discounts
+* **Dormant:** email sequences + remarketing
+
+---
+
+## 🏗 7. Project Structure
 
 ```text
-CUSTOMER-SEGMENTATION-USING-RFM-ANALYSIS/
+CUSTOMER-VALUE-INTELLIGENCE/
 ├── src/
-│   ├── data_prep.py          
-│   ├── rfm_features.py       
-│   ├── clustering_models.py  
-│   └── clv.py                
+│   ├── data_prep.py
+│   ├── rfm_features.py
+│   ├── clustering_models.py
+│   └── clv.py
 │
 ├── dashboard/
-│   └── app.py                
-│
-├── notebooks/
-│   └── CustomerSegmentationAnalysis.ipynb  
+│   └── app.py
 │
 ├── data/
-│   ├── raw/
-│   │   └── ecommerce_data.csv             
-│   └── processed/
-│       └── rfm_segments.csv               
+│   ├── raw/ecommerce_data.csv
+│   └── processed/rfm_segments.csv
 │
-├── reports/
-│   └── figures/                           
-│
-├── assets/
-│   └── banner.png                         
-│
-├── run_pipeline.py                        
+├── run_pipeline.py
 ├── requirements.txt
-├── .gitignore
-└── README.md
+├── README.md
+└── notebooks/
+```
+
+---
+
+## ⚙️ 8. How to Run
+
+### Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Run the pipeline
+
+```bash
+python run_pipeline.py
+```
+
+### Launch the dashboard
+
+```bash
+streamlit run dashboard/app.py
+```
+
+---
+
